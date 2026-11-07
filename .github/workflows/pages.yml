@@ -25,7 +25,7 @@ jobs:
         with:
           path: dist-web
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
         # Pages has to be switched on once in Settings > Pages (Source: GitHub Actions). Until then
         # this step cannot succeed, and it should not turn the whole repository red.
         continue-on-error: true
