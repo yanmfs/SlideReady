@@ -10,6 +10,8 @@ export interface TextRun {
   // Points after inheritance and autofit scaling; undefined when it cannot be resolved safely.
   size?: number;
   font?: string;
+  // RRGGBB; undefined when the color needs theme transforms that are not resolved.
+  color?: string;
 }
 
 export interface Paragraph {
@@ -22,6 +24,13 @@ export interface SlideText {
   kind: "title" | "body" | "footer" | "other";
   inTable: boolean;
   fontScale?: number;
+  // RRGGBB behind the text; undefined when a gradient, picture or unresolved color is in the way.
+  background?: string;
+}
+
+export interface OffSlideShape {
+  name: string;
+  partial: boolean;
 }
 
 export interface Link {
@@ -64,6 +73,7 @@ export interface Slide {
   pictures: Picture[];
   tables: Table[];
   commentCount: number;
+  offSlide: OffSlideShape[];
 }
 
 export interface Deck {

@@ -166,6 +166,31 @@ describe("accessibility and hygiene", () => {
   });
 });
 
+describe("contrast and file hygiene", () => {
+  it("warns below 4.5:1 and fails below 3:1", () => {
+    const warn = run("contrast-warning").find((i) => i.id === "contrast");
+    expect(warn?.severity).toBe("warning");
+    expect(warn?.params.ratio).toBe(3.5);
+    expect(run("contrast-error").find((i) => i.id === "contrast")?.severity).toBe("error");
+  });
+
+  it("uses the fill of the shape drawn behind the text", () => {
+    expect(ids(run("contrast-dark-panel"))).not.toContain("contrast");
+  });
+
+  it("finds shapes outside the slide", () => {
+    const issue = run("off-slide").find((i) => i.id === "hygiene-off-slide");
+    expect(issue?.slide).toBe(1);
+    expect(issue?.params.count).toBe(1);
+  });
+
+  it("reports author metadata as a tip", () => {
+    const issue = run("metadata").find((i) => i.id === "hygiene-metadata");
+    expect(issue?.severity).toBe("tip");
+    expect(issue?.params.people).toBe("Maria Fictícia");
+  });
+});
+
 describe("parser", () => {
   it("follows the slide list instead of the file names", () => {
     const deck = parseDeck(decks.shuffled!);
