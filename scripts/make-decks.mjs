@@ -51,6 +51,7 @@ function master(pres) {
 async function build({ layout = "LAYOUT_WIDE", slides }) {
   const pres = new pptxgen();
   pres.layout = layout;
+  pres.author = "Autora Fictícia";
   master(pres);
   slides.forEach((spec) => {
     const slide = pres.addSlide({ masterName: "M" });

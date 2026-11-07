@@ -28,3 +28,4 @@ src-tauri/gen
 test-results
 docs/shots/tmp
 tests/fixtures/decks
+dist-cli
