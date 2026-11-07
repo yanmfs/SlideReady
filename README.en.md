@@ -39,7 +39,7 @@ Get the installer from the [Releases](../../releases) page:
 - **macOS:** `SlideReady_x.y.z_universal.dmg`
 - **Windows:** `SlideReady_x.y.z_x64-setup.exe`
 
-Try it in the browser without installing anything: <https://yanmfs.github.io/slideready/>. The web version cannot tell which fonts are installed, cannot see linked files and does not check links online; the rest of the analysis is the same.
+Try it in the browser without installing anything: <https://yanmfs.github.io/SlideReady/>. The web version cannot tell which fonts are installed, cannot see linked files and does not check links online; the rest of the analysis is the same.
 
 ## First launch
 

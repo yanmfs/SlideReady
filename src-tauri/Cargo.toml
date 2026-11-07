@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Check a .pptx before you present."
 authors = ["Yan Suzano"]
 license = "MIT"
-repository = "https://github.com/yanmfs/slideready"
+repository = "https://github.com/yanmfs/SlideReady"
 edition = "2021"
 
 [lib]

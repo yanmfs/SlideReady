@@ -8,7 +8,7 @@ const MAX_PARALLEL: usize = 6;
 const USER_AGENT: &str = concat!(
     "SlideReady/",
     env!("CARGO_PKG_VERSION"),
-    " (link check; +https://github.com/yanmfs/slideready)"
+    " (link check; +https://github.com/yanmfs/SlideReady)"
 );
 
 #[derive(Debug, thiserror::Error)]

@@ -39,7 +39,7 @@ Baixe o instalador na página de [Releases](../../releases):
 - **macOS:** `SlideReady_x.y.z_universal.dmg`
 - **Windows:** `SlideReady_x.y.z_x64-setup.exe`
 
-Teste no navegador, sem instalar nada: <https://yanmfs.github.io/slideready/>. A versão web não sabe quais fontes estão instaladas, não vê arquivos vinculados e não verifica links na internet; o resto da análise é igual.
+Teste no navegador, sem instalar nada: <https://yanmfs.github.io/SlideReady/>. A versão web não sabe quais fontes estão instaladas, não vê arquivos vinculados e não verifica links na internet; o resto da análise é igual.
 
 ## Primeira abertura
 
