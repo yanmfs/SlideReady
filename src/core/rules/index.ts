@@ -6,6 +6,7 @@ import { a11yTableHeader } from "./a11y-table-header";
 import { contrast } from "./contrast";
 import { deckAspect } from "./deck-aspect";
 import { fontNotEmbedded, fontRisky } from "./fonts";
+import { fontsMany } from "./fonts-many";
 import { hygieneComments } from "./hygiene-comments";
 import { hygieneHidden } from "./hygiene-hidden";
 import { hygieneMetadata } from "./hygiene-metadata";
@@ -17,10 +18,13 @@ import { mediaFormat } from "./media-format";
 import { mediaHeavy } from "./media-heavy";
 import { mediaLinked } from "./media-linked";
 import { mediaMissingPart } from "./media-missing-part";
+import { notesPlaceholder } from "./notes-placeholder";
+import { slideEmpty } from "./slide-empty";
 import { textAutofitShrink } from "./text-autofit-shrink";
 import { textDense } from "./text-dense";
 import { textPlaceholder } from "./text-placeholder";
 import { textSmall } from "./text-small";
+import { titleLong } from "./title-long";
 import type { Issue, Rule, RuleContext, Severity } from "./types";
 
 export type { Category, Issue, Rule, RuleContext, Severity } from "./types";
@@ -37,10 +41,14 @@ export const rules: Rule[] = [
   mediaHeavy,
   fontNotEmbedded,
   fontRisky,
+  fontsMany,
   textPlaceholder,
   textSmall,
   textAutofitShrink,
   textDense,
+  slideEmpty,
+  titleLong,
+  notesPlaceholder,
   contrast,
   a11yAltText,
   a11yNoTitle,

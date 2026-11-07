@@ -431,6 +431,7 @@ interface Collected {
   pictures: Picture[];
   tables: Table[];
   offSlide: OffSlideShape[];
+  content: number;
   // Painted areas in drawing order: layout and master first, then the slide.
   paints: Rect[];
   title?: string;
@@ -518,6 +519,9 @@ function collect(ctx: SlideContext, tree: Element, out: Collected, grouped = fal
             backgroundFor(ctx, out, box, paint, grouped),
           );
           out.texts.push(text);
+          const written = text.paragraphs.some((p) => p.runs.some((r) => r.text.trim() !== ""));
+          // An empty placeholder shows nothing in the show; a plain shape does, even without text.
+          if (!ph || written) out.content++;
           if (text.kind === "title" && out.title === undefined) {
             const title = text.paragraphs
               .map((p) => p.runs.map((r) => r.text).join(""))
@@ -526,8 +530,10 @@ function collect(ctx: SlideContext, tree: Element, out: Collected, grouped = fal
             if (title) out.title = title;
           }
         }
+        if (!body && !ph) out.content++;
         if (child(child(el, NS.p, "spPr"), NS.a, "blipFill")) {
           out.pictures.push(pictureFrom(child(el, NS.p, "nvSpPr"), "picture"));
+          out.content++;
         }
         break;
       }
@@ -535,12 +541,17 @@ function collect(ctx: SlideContext, tree: Element, out: Collected, grouped = fal
         const nvPr = child(child(el, NS.p, "nvPicPr"), NS.p, "nvPr");
         const isMedia = child(nvPr, NS.a, "videoFile") || child(nvPr, NS.a, "audioFile");
         if (!isMedia) out.pictures.push(pictureFrom(child(el, NS.p, "nvPicPr"), "picture"));
+        out.content++;
         break;
       }
       case "grpSp":
         collect(ctx, el, out, true);
         break;
+      case "cxnSp":
+        out.content++;
+        break;
       case "graphicFrame": {
+        out.content++;
         const data = child(child(el, NS.a, "graphic"), NS.a, "graphicData");
         const uri = attr(data, "uri") ?? "";
         const nv = child(el, NS.p, "nvGraphicFramePr");
@@ -609,6 +620,23 @@ function readTheme(zip: Zip, rels: Map<string, Relationship>, masterRoot: Elemen
     },
     colors: { palette, clrMap },
   };
+}
+
+// Text of the speaker notes: the body placeholder only, not the slide thumbnail or the number.
+function readNotes(zip: Zip, rels: Map<string, Relationship>): string {
+  const rel = [...rels.values()].find((r) => typeTail(r.type) === "notesSlide");
+  const xml = rel ? zip.text(rel.target) : undefined;
+  const tree = xml ? child(child(parseXml(xml), NS.p, "cSld"), NS.p, "spTree") : undefined;
+  if (!tree) return "";
+  return children(tree, NS.p, "sp")
+    .filter((sp) => placeholderOf(sp)?.type === "body")
+    .map((sp) =>
+      children(child(sp, NS.p, "txBody") ?? sp, NS.a, "p")
+        .map((p) => textFromParagraph(p))
+        .join("\n"),
+    )
+    .join("\n")
+    .trim();
 }
 
 export function parseDeck(bytes: Uint8Array): Deck {
@@ -682,7 +710,14 @@ export function parseDeck(bytes: Uint8Array): Deck {
     };
 
     const root = slideRoot;
-    const collected: Collected = { texts: [], pictures: [], tables: [], offSlide: [], paints: [] };
+    const collected: Collected = {
+      texts: [],
+      pictures: [],
+      tables: [],
+      offSlide: [],
+      content: 0,
+      paints: [],
+    };
     // Decoration drawn by the layout and master sits behind everything on the slide.
     for (const tree of [ctx.masterTree, ctx.layoutTree]) {
       for (const el of tree ? resolveChildren(tree) : []) {
@@ -713,6 +748,8 @@ export function parseDeck(bytes: Uint8Array): Deck {
       tables: collected.tables,
       commentCount,
       offSlide: collected.offSlide,
+      contentCount: collected.content,
+      notes: readNotes(zip, rels),
     };
   });
 

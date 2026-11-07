@@ -29,7 +29,7 @@ for (const os of ["macos", "windows"]) {
       page.getByRole("button", { name: "Abrir apresentação" }).click(),
     ]);
     await chooser.setFiles(demo);
-    await page.getByRole("heading", { name: "Resultados do trimestre.pptx" }).waitFor();
+    await page.getByRole("heading", { name: /Precisa de atenção|Quase lá|Pronto para apresentar/ }).waitFor();
     await page.waitForTimeout(300);
     await page.screenshot({ path: `${out}/${os}-${scheme}-main.png` });
     await page.close();
