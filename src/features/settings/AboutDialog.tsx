@@ -5,7 +5,7 @@ import { Logo } from "../../components/Logo";
 import { platform } from "../../platform";
 import { useApp, useT } from "../../store";
 
-const REPO_URL = "https://github.com/yanmfs/slideready";
+const REPO_URL = "https://github.com/yanmfs/SlideReady";
 
 export function AboutDialog() {
   const t = useT();
