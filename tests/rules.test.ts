@@ -199,6 +199,24 @@ describe("slide content", () => {
   });
 });
 
+describe("things a real deck taught", () => {
+  it("lists one video once even though PowerPoint links it twice", () => {
+    const heavy = run("media-twice").filter((i) => i.id === "media-heavy");
+    expect(heavy).toHaveLength(1);
+  });
+
+  it("does not ask for a description of a picture that is the slide background", () => {
+    const deck = parseDeck(decks["background-picture"]!);
+    expect(deck.slides[0]?.pictures.map((p) => p.fullBleed)).toEqual([true, false]);
+    const alt = run("background-picture").find((i) => i.id === "a11y-alt-text");
+    expect(alt?.params.count).toBe(1);
+  });
+
+  it("does not treat a thin custom shape as a panel behind the text", () => {
+    expect(ids(run("contrast-thin-bar"))).not.toContain("contrast");
+  });
+});
+
 describe("contrast and file hygiene", () => {
   it("warns below 4.5:1 and fails below 3:1", () => {
     const warn = run("contrast-warning").find((i) => i.id === "contrast");

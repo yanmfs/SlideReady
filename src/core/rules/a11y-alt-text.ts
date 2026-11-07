@@ -6,7 +6,7 @@ export const a11yAltText: Rule = {
   category: "accessibility",
   run: (deck) =>
     deck.slides.flatMap((slide) => {
-      const missing = slide.pictures.filter((p) => !p.hasAlt && !p.decorative);
+      const missing = slide.pictures.filter((p) => !p.hasAlt && !p.decorative && !p.fullBleed);
       return missing.length === 0
         ? []
         : [

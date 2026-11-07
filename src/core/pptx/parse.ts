@@ -181,6 +181,19 @@ interface Rect {
   color: string | null;
 }
 
+const SOLID_BOX = new Set([
+  "rect",
+  "roundRect",
+  "round1Rect",
+  "round2SameRect",
+  "round2DiagRect",
+  "snip1Rect",
+  "snip2SameRect",
+  "snip2DiagRect",
+  "snipRoundRect",
+  "ellipse",
+]);
+
 // A shape that paints something behind text drawn after it.
 function paintOf(el: Element, colors: Colors): Rect | undefined {
   const box = boxOf(xfrmOf(el));
@@ -201,7 +214,11 @@ function paintOf(el: Element, colors: Colors): Rect | undefined {
   const spPr = child(el, NS.p, "spPr");
   if (child(spPr, NS.a, "noFill")) return undefined;
   const fill = fillOf(spPr, colors);
-  if (fill !== undefined) return { box, color: fill };
+  // A custom outline, or a line or arrow, paints only part of its box: the text over it is unknown.
+  const preset = attr(child(spPr, NS.a, "prstGeom"), "prst");
+  const fillsItsBox =
+    !child(spPr, NS.a, "custGeom") && (preset === undefined || SOLID_BOX.has(preset));
+  if (fill !== undefined) return { box, color: fillsItsBox ? fill : null };
   const fillRef = child(child(el, NS.p, "style"), NS.a, "fillRef");
   return fillRef && attr(fillRef, "idx") !== "0" ? { box, color: null } : undefined;
 }
@@ -390,9 +407,12 @@ function mediaKind(rel: Relationship): MediaRef["relType"] | null {
 
 function readMedia(ctx: SlideContext): MediaRef[] {
   const out: MediaRef[] = [];
+  // PowerPoint links a video through two relationships (video and media) to the same file.
+  const seen = new Set<string>();
   for (const rel of ctx.rels.values()) {
     const relType = mediaKind(rel);
-    if (!relType) continue;
+    if (!relType || seen.has(rel.target)) continue;
+    seen.add(rel.target);
     out.push({
       relType,
       target: rel.target,
@@ -413,7 +433,7 @@ function readMedia(ctx: SlideContext): MediaRef[] {
   return out;
 }
 
-function pictureFrom(nv: Element | undefined, kind: Picture["kind"]): Picture {
+function pictureFrom(nv: Element | undefined, kind: Picture["kind"], fullBleed = false): Picture {
   const props = child(nv, NS.p, "cNvPr");
   const decorative = descendants(props ?? (nv as Element), ADEC, "decorative").some(
     (d) => attr(d, "val") === "1",
@@ -422,8 +442,15 @@ function pictureFrom(nv: Element | undefined, kind: Picture["kind"]): Picture {
     name: attr(props, "name") ?? "",
     hasAlt: (attr(props, "descr") ?? "").trim() !== "",
     decorative,
+    fullBleed,
     kind,
   };
+}
+
+// A picture that fills the slide is a background, not content someone has to be told about.
+function coversSlide(ctx: SlideContext, el: Element): boolean {
+  const box = boxOf(xfrmOf(el));
+  return box !== undefined && box.w * box.h >= 0.85 * ctx.slideW * ctx.slideH;
 }
 
 interface Collected {
@@ -532,7 +559,9 @@ function collect(ctx: SlideContext, tree: Element, out: Collected, grouped = fal
         }
         if (!body && !ph) out.content++;
         if (child(child(el, NS.p, "spPr"), NS.a, "blipFill")) {
-          out.pictures.push(pictureFrom(child(el, NS.p, "nvSpPr"), "picture"));
+          out.pictures.push(
+            pictureFrom(child(el, NS.p, "nvSpPr"), "picture", coversSlide(ctx, el)),
+          );
           out.content++;
         }
         break;
@@ -540,7 +569,11 @@ function collect(ctx: SlideContext, tree: Element, out: Collected, grouped = fal
       case "pic": {
         const nvPr = child(child(el, NS.p, "nvPicPr"), NS.p, "nvPr");
         const isMedia = child(nvPr, NS.a, "videoFile") || child(nvPr, NS.a, "audioFile");
-        if (!isMedia) out.pictures.push(pictureFrom(child(el, NS.p, "nvPicPr"), "picture"));
+        if (!isMedia) {
+          out.pictures.push(
+            pictureFrom(child(el, NS.p, "nvPicPr"), "picture", coversSlide(ctx, el)),
+          );
+        }
         out.content++;
         break;
       }
