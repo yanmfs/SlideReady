@@ -14,6 +14,12 @@ Check a .pptx before you present: fonts that will change, links to local files, 
 | ------------------------------------------------------------------ | ---------------------------------------------------------------- |
 | ![SlideReady window, light theme](docs/shots/macos-light-main.png) | ![SlideReady window, dark theme](docs/shots/macos-dark-main.png) |
 
+## How it works
+
+<p align="center">
+  <img src="docs/how-it-works.svg" alt="Each problem in the .pptx shows up on the right slide; once fixed, the verdict changes to "Ready to present"." width="100%">
+</p>
+
 ## Highlights
 
 - **One sentence at the top:** "Ready to present", "Almost there" or "Needs attention".
