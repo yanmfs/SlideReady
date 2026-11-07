@@ -214,6 +214,63 @@ export async function buildDecks() {
     addRel(ctx, 1, "video", "../media/grande.mp4");
   });
 
+  decks["media-twice"] = patch(await build({ slides: two }), (ctx) => {
+    ctx.set("ppt/media/video.mp4", new Uint8Array(21 * 1024 * 1024));
+    addRel(ctx, 1, "video", "../media/video.mp4");
+    addRel(ctx, 1, "media", "../media/video.mp4");
+  });
+  decks["background-picture"] = patch(
+    await build({
+      slides: [
+        {
+          title: "Com fundo",
+          extra: (s) => {
+            s.addImage({ data: PIXEL, x: 0, y: 0, w: 13.33, h: 7.5 });
+            s.addImage({ data: PIXEL, x: 1, y: 5, w: 1, h: 1 });
+          },
+        },
+      ],
+    }),
+    ({ text, set }) =>
+      set(
+        "ppt/slides/slide1.xml",
+        text("ppt/slides/slide1.xml").replace(/descr="[^"]*"/g, 'descr=""'),
+      ),
+  );
+  decks["contrast-thin-bar"] = await build({
+    slides: [
+      {
+        title: "Cartão com barra",
+        extra: (s) => {
+          // A thin accent bar whose box is the size of the card; the text next to it is the same colour.
+          s.addShape("custGeom", {
+            x: 0.8,
+            y: 5,
+            w: 8,
+            h: 1.2,
+            fill: { color: "E3AE3C" },
+            points: [
+              { x: 0, y: 0, moveTo: true },
+              { x: 0.04, y: 0 },
+              { x: 0.04, y: 1.2 },
+              { x: 0, y: 1.2 },
+              { close: true },
+            ],
+          });
+          s.addText("SOM · HIPÓTESE", {
+            x: 1.2,
+            y: 5.2,
+            w: 5,
+            h: 0.5,
+            fontFace: "Arial",
+            fontSize: 20,
+            color: "E3AE3C",
+          });
+        },
+      },
+    ],
+  });
+
   const fontSlide = (face) => ({
     title: "Fontes",
     extra: (s) =>

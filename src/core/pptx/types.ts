@@ -54,6 +54,8 @@ export interface Picture {
   name: string;
   hasAlt: boolean;
   decorative: boolean;
+  // Covers nearly the whole slide: a background, which needs no description.
+  fullBleed: boolean;
   kind: "picture" | "chart";
 }
 
