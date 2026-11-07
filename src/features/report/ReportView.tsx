@@ -1,9 +1,12 @@
 import * as Tabs from "@radix-ui/react-tabs";
-import { FileText } from "lucide-react";
+import { ClipboardCopy, FileText } from "lucide-react";
+import { Button } from "../../components/Button";
+import { showToast } from "../../toast";
 import { countBySeverity } from "../../core/rules";
 import { useT } from "../../store";
 import type { Analysis } from "./analysis";
 import { FontsTab } from "./FontsTab";
+import { reportMarkdown } from "./markdown";
 import { IssuesTab } from "./IssuesTab";
 
 const tab =
@@ -44,6 +47,17 @@ export function ReportView({ analysis }: { analysis: Analysis }) {
               </p>
             </div>
           </div>
+          <Button
+            onClick={() =>
+              navigator.clipboard.writeText(reportMarkdown(analysis, t)).then(
+                () => showToast(t("report.copied")),
+                () => showToast(t("report.copyFailed"), "error"),
+              )
+            }
+          >
+            <ClipboardCopy className="size-4" aria-hidden />
+            {t("report.copyMarkdown")}
+          </Button>
           <p role="status" className="text-sm font-medium">
             {clean && counts.tip === 0
               ? t("summary.allGood")
