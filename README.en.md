@@ -4,8 +4,7 @@
 
 Check a .pptx before you present: fonts that will change, links to local files, media that will not travel and forgotten placeholder text, slide by slide.
 
-<!-- Record docs/demo.gif and uncomment the line below. -->
-<!-- ![SlideReady](docs/demo.gif) -->
+![SlideReady](docs/demo.gif)
 
 | Light                                                              | Dark                                                             |
 | ------------------------------------------------------------------ | ---------------------------------------------------------------- |

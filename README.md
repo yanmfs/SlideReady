@@ -4,8 +4,7 @@
 
 Confira um .pptx antes de apresentar: fontes que vão trocar, links para arquivos locais, mídia que não vai junto e texto provisório esquecido, slide por slide.
 
-<!-- Grave docs/demo.gif e descomente a linha abaixo. -->
-<!-- ![SlideReady](docs/demo.gif) -->
+![SlideReady](docs/demo.gif)
 
 | Claro                                                                  | Escuro                                                                 |
 | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- |
