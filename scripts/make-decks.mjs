@@ -390,6 +390,50 @@ export async function buildDecks() {
     },
   );
 
+  const txt = (s, text, opts) =>
+    s.addText(text, { x: 1, y: 5.2, w: 6, h: 0.6, fontFace: "Arial", fontSize: 24, ...opts });
+  decks["contrast-warning"] = await build({
+    slides: [
+      { title: "Contraste", extra: (s) => txt(s, "Texto cinza claro", { color: "888888" }) },
+    ],
+  });
+  decks["contrast-error"] = await build({
+    slides: [
+      { title: "Contraste", extra: (s) => txt(s, "Texto quase invisível", { color: "DDDDDD" }) },
+    ],
+  });
+  decks["contrast-dark-panel"] = await build({
+    slides: [
+      {
+        title: "Painel escuro",
+        extra: (s) => {
+          s.addShape("rect", { x: 0.5, y: 5, w: 8, h: 1.2, fill: { color: "1F2937" } });
+          txt(s, "Texto branco sobre painel", { color: "FFFFFF" });
+        },
+      },
+    ],
+  });
+  decks["off-slide"] = await build({
+    slides: [
+      {
+        title: "Fora da área",
+        extra: (s) => txt(s, "Caixa esquecida", { x: 14, y: 2, w: 3, h: 1 }),
+      },
+      { title: "Dentro da área" },
+    ],
+  });
+  decks.metadata = patch(decks.clean, ({ text, set }) =>
+    set(
+      "docProps/core.xml",
+      text("docProps/core.xml")
+        .replace(/<dc:creator>[^<]*<\/dc:creator>/, "<dc:creator>Maria Fictícia</dc:creator>")
+        .replace(
+          /<cp:lastModifiedBy>[^<]*<\/cp:lastModifiedBy>/,
+          "<cp:lastModifiedBy>Maria Fictícia</cp:lastModifiedBy>",
+        ),
+    ),
+  );
+
   decks.demo = patch(
     await build({
       slides: [

@@ -163,5 +163,18 @@
   "fix.deck-aspect.mac": "Design > Tamanho do Slide > Widescreen (16:9), se o projetor for widescreen. Confira o resultado.",
   "report.copyMarkdown": "Copiar como Markdown",
   "report.copied": "Relatório copiado.",
-  "report.copyFailed": "Não consegui copiar. Tente de novo."
+  "report.copyFailed": "Não consegui copiar. Tente de novo.",
+  "issue.contrast.title": "Texto com pouco contraste",
+  "issue.contrast.body": "{count} trecho(s) com contraste de {ratio}:1 ou menos (por exemplo \"{sample}\"). Em projetor, abaixo de 4,5:1 o texto some; abaixo de 3:1 ninguém lê.",
+  "fix.contrast.win": "Escolha uma cor de texto mais escura sobre fundo claro (ou o contrário). Em Página Inicial > Cor da Fonte, prefira preto ou branco puro.",
+  "fix.contrast.mac": "Escolha uma cor de texto mais escura sobre fundo claro (ou o contrário). Em Página Inicial > Cor da Fonte, prefira preto ou branco puro.",
+  "fix.contrast.gs": "Selecione o texto e use Cor do texto na barra de ferramentas para trocar por uma cor com mais contraste.",
+  "issue.hygiene-off-slide.title": "Objeto fora da área do slide",
+  "issue.hygiene-off-slide.body": "{count} objeto(s) total ou parcialmente fora do slide (por exemplo \"{name}\"). Ele não aparece na apresentação, mas continua no arquivo.",
+  "fix.hygiene-off-slide.win": "Abra o Painel de Seleção (Página Inicial > Organizar > Painel de Seleção), ache o objeto e apague ou traga para dentro do slide.",
+  "fix.hygiene-off-slide.mac": "Abra o Painel de Seleção (Página Inicial > Organizar > Painel de Seleção), ache o objeto e apague ou traga para dentro do slide.",
+  "issue.hygiene-metadata.title": "Nome de pessoa nas propriedades do arquivo",
+  "issue.hygiene-metadata.body": "O arquivo guarda os nomes: {people}. Quem receber a apresentação consegue ver.",
+  "fix.hygiene-metadata.win": "Arquivo > Informações > Verificar Problemas > Inspecionar Documento > Remover Todos em Propriedades do Documento e Informações Pessoais.",
+  "fix.hygiene-metadata.mac": "Arquivo > Propriedades, limpe os campos Autor e Gerente. Ou Revisão > Proteger > Remover informações pessoais ao salvar."
 }

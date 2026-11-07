@@ -3,10 +3,13 @@ import { a11yAltText } from "./a11y-alt-text";
 import { a11yDuplicateTitle } from "./a11y-duplicate-title";
 import { a11yNoTitle } from "./a11y-no-title";
 import { a11yTableHeader } from "./a11y-table-header";
+import { contrast } from "./contrast";
 import { deckAspect } from "./deck-aspect";
 import { fontNotEmbedded, fontRisky } from "./fonts";
 import { hygieneComments } from "./hygiene-comments";
 import { hygieneHidden } from "./hygiene-hidden";
+import { hygieneMetadata } from "./hygiene-metadata";
+import { hygieneOffSlide } from "./hygiene-off-slide";
 import { linkLocalFile } from "./link-local-file";
 import { linkMalformed } from "./link-malformed";
 import { linkSlideJump } from "./link-slide-jump";
@@ -21,6 +24,7 @@ import { textSmall } from "./text-small";
 import type { Issue, Rule, RuleContext, Severity } from "./types";
 
 export type { Category, Issue, Rule, RuleContext, Severity } from "./types";
+export { contrastRatio } from "./contrast";
 export { fontUsage, type FontStatus, type FontUse } from "./fonts";
 
 export const rules: Rule[] = [
@@ -37,12 +41,15 @@ export const rules: Rule[] = [
   textSmall,
   textAutofitShrink,
   textDense,
+  contrast,
   a11yAltText,
   a11yNoTitle,
   a11yDuplicateTitle,
   a11yTableHeader,
   hygieneHidden,
   hygieneComments,
+  hygieneMetadata,
+  hygieneOffSlide,
   deckAspect,
 ];
 

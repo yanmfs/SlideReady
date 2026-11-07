@@ -3,6 +3,7 @@ import type {
   Deck,
   Link,
   MediaRef,
+  OffSlideShape,
   Paragraph,
   Picture,
   Relationship,
@@ -87,20 +88,131 @@ const typeTail = (type: string) => type.slice(type.lastIndexOf("/") + 1);
 interface Style {
   size?: number;
   font?: string;
+  // null: a color is set but needs transforms that are not resolved.
+  color?: string | null;
+}
+
+interface Colors {
+  palette: Map<string, string>;
+  clrMap: Map<string, string>;
 }
 
 interface Inheritance {
   masterStyles: Element | undefined;
   defaultTextStyle: Element | undefined;
   theme: { major?: string; minor?: string };
+  colors: Colors;
 }
 
-function levelProps(list: Element | undefined, level: number): Style {
+const HEX6 = /^[0-9A-F]{6}$/;
+const hasElementChild = (el: Element) => Array.from(el.childNodes).some((n) => n.nodeType === 1);
+
+// Plain colors only: anything with lumMod, tint, alpha and the like is reported as unknown.
+function solidColor(solid: Element | undefined, colors: Colors): string | null {
+  const c = solid
+    ? (Array.from(solid.childNodes).find((n) => n.nodeType === 1) as Element | undefined)
+    : undefined;
+  if (!c || hasElementChild(c)) return null;
+  const val = attr(c, "val");
+  switch (c.localName) {
+    case "srgbClr": {
+      const hex = (val ?? "").toUpperCase();
+      return HEX6.test(hex) ? hex : null;
+    }
+    case "sysClr":
+      return attr(c, "lastClr")?.toUpperCase() ?? null;
+    case "schemeClr":
+      return val ? (colors.palette.get(colors.clrMap.get(val) ?? val) ?? null) : null;
+    default:
+      return null;
+  }
+}
+
+// undefined: nothing specified here; null: specified but not a plain solid color.
+function fillOf(props: Element | undefined, colors: Colors): string | null | undefined {
+  if (!props) return undefined;
+  const solid = child(props, NS.a, "solidFill");
+  if (solid) return solidColor(solid, colors);
+  for (const kind of ["gradFill", "blipFill", "pattFill", "grpFill"]) {
+    if (child(props, NS.a, kind)) return null;
+  }
+  return undefined;
+}
+
+// The first source that sets a background wins, even when it is not resolvable.
+function backgroundOf(root: Element | undefined, colors: Colors): string | null | undefined {
+  const bg = child(child(root, NS.p, "cSld"), NS.p, "bg");
+  if (!bg) return undefined;
+  const props = child(bg, NS.p, "bgPr");
+  if (props) return fillOf(props, colors) ?? null;
+  const ref = child(bg, NS.p, "bgRef");
+  if (ref) return attr(ref, "idx") === "1001" ? solidColor(ref, colors) : null;
+  return undefined;
+}
+
+interface Box {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+function boxOf(xfrm: Element | undefined): Box | undefined {
+  const off = child(xfrm, NS.a, "off");
+  const ext = child(xfrm, NS.a, "ext");
+  if (!off || !ext) return undefined;
+  const box = {
+    x: Number(attr(off, "x")),
+    y: Number(attr(off, "y")),
+    w: Number(attr(ext, "cx")),
+    h: Number(attr(ext, "cy")),
+  };
+  return Object.values(box).every(Number.isFinite) ? box : undefined;
+}
+
+function xfrmOf(el: Element): Element | undefined {
+  if (el.localName === "graphicFrame") return child(el, NS.p, "xfrm");
+  if (el.localName === "grpSp") return child(child(el, NS.p, "grpSpPr"), NS.a, "xfrm");
+  return child(child(el, NS.p, "spPr"), NS.a, "xfrm");
+}
+
+interface Rect {
+  box: Box;
+  color: string | null;
+}
+
+// A shape that paints something behind text drawn after it.
+function paintOf(el: Element, colors: Colors): Rect | undefined {
+  const box = boxOf(xfrmOf(el));
+  if (!box) return undefined;
+  if (el.localName === "pic") return { box, color: null };
+  if (el.localName === "grpSp") {
+    const paints =
+      descendants(el, NS.p, "pic").length > 0 ||
+      descendants(el, NS.p, "sp").some((sp) => {
+        const spPr = child(sp, NS.p, "spPr");
+        return (
+          spPr !== undefined && !child(spPr, NS.a, "noFill") && fillOf(spPr, colors) !== undefined
+        );
+      });
+    return paints ? { box, color: null } : undefined;
+  }
+  if (el.localName !== "sp") return undefined;
+  const spPr = child(el, NS.p, "spPr");
+  if (child(spPr, NS.a, "noFill")) return undefined;
+  const fill = fillOf(spPr, colors);
+  if (fill !== undefined) return { box, color: fill };
+  const fillRef = child(child(el, NS.p, "style"), NS.a, "fillRef");
+  return fillRef && attr(fillRef, "idx") !== "0" ? { box, color: null } : undefined;
+}
+
+function levelProps(list: Element | undefined, level: number, colorsFor: Colors): Style {
   const props = child(child(list, NS.a, `lvl${level + 1}pPr`), NS.a, "defRPr");
   const sz = attr(props, "sz");
   return {
     size: sz ? Number(sz) / 100 : undefined,
     font: attr(child(props, NS.a, "latin"), "typeface"),
+    color: fillOf(props, colorsFor),
   };
 }
 
@@ -155,6 +267,9 @@ interface SlideContext {
   masterTree: Element | undefined;
   inh: Inheritance;
   slideParts: Set<string>;
+  slideW: number;
+  slideH: number;
+  slideBg: string | null | undefined;
 }
 
 function fontName(raw: string | undefined, theme: Inheritance["theme"]): string | undefined {
@@ -176,6 +291,7 @@ function readTextBody(
   shape: Element | undefined,
   ph: { type?: string; idx?: string } | undefined,
   inTable: boolean,
+  background?: string,
 ): SlideText {
   const kind = kindOf(ph);
   const layoutShape = ph ? findPlaceholder(ctx.layoutTree, ph) : undefined;
@@ -201,7 +317,8 @@ function readTextBody(
   for (const p of children(body, NS.a, "p")) {
     const pPr = child(p, NS.a, "pPr");
     const level = Number(attr(pPr, "lvl") ?? 0);
-    const inherited = lists.map((l) => levelProps(l, level));
+    const inherited = lists.map((l) => levelProps(l, level, ctx.inh.colors));
+    const inheritedColor = first(inherited.map((i) => i.color));
     const inheritedSize = first(inherited.map((i) => i.size));
     const inheritedFont = first(inherited.map((i) => i.font));
     const defaultFont = kind === "title" ? ctx.inh.theme.major : ctx.inh.theme.minor;
@@ -220,7 +337,9 @@ function readTextBody(
         fontName(attr(child(rPr, NS.a, "latin"), "typeface"), ctx.inh.theme) ??
         fontName(inheritedFont, ctx.inh.theme) ??
         defaultFont;
-      runs.push({ text, size, font });
+      const own = fillOf(rPr, ctx.inh.colors);
+      const color = own !== undefined ? own : inheritedColor;
+      runs.push({ text, size, font, color: color ?? undefined });
     }
     const hasText = runs.some((r) => r.text.trim() !== "");
     const noBullet = child(pPr, NS.a, "buNone") !== undefined;
@@ -231,7 +350,7 @@ function readTextBody(
     paragraphs.push({ runs, bullet });
   }
   void shape;
-  return { paragraphs, kind, inTable, fontScale };
+  return { paragraphs, kind, inTable, fontScale, background };
 }
 
 function readLinks(ctx: SlideContext, root: Element): Link[] {
@@ -311,17 +430,93 @@ interface Collected {
   texts: SlideText[];
   pictures: Picture[];
   tables: Table[];
+  offSlide: OffSlideShape[];
+  // Painted areas in drawing order: layout and master first, then the slide.
+  paints: Rect[];
   title?: string;
 }
 
-function collect(ctx: SlideContext, tree: Element, out: Collected) {
+const TOLERANCE = 0.02;
+
+function checkOffSlide(ctx: SlideContext, el: Element, out: Collected) {
+  const xfrm = xfrmOf(el);
+  const box = boxOf(xfrm);
+  if (!box || attr(xfrm, "rot") || (box.w === 0 && box.h === 0)) return;
+  const tx = ctx.slideW * TOLERANCE;
+  const ty = ctx.slideH * TOLERANCE;
+  const outside =
+    box.x + box.w <= 0 || box.y + box.h <= 0 || box.x >= ctx.slideW || box.y >= ctx.slideH;
+  const partial =
+    box.x < -tx ||
+    box.y < -ty ||
+    box.x + box.w > ctx.slideW + tx ||
+    box.y + box.h > ctx.slideH + ty;
+  if (!outside && !partial) return;
+  out.offSlide.push({
+    name: attr(descendants(el, NS.p, "cNvPr")[0], "name") ?? "",
+    partial: !outside,
+  });
+}
+
+function backgroundFor(
+  ctx: SlideContext,
+  out: Collected,
+  box: Box | undefined,
+  own: Rect | undefined,
+  grouped: boolean,
+): string | undefined {
+  if (own) return own.color ?? undefined;
+  if (grouped) return undefined;
+  if (out.paints.length > 0) {
+    if (!box) return undefined;
+    const cx = box.x + box.w / 2;
+    const cy = box.y + box.h / 2;
+    for (let i = out.paints.length - 1; i >= 0; i--) {
+      const r = out.paints[i]!.box;
+      if (cx >= r.x && cx <= r.x + r.w && cy >= r.y && cy <= r.y + r.h) {
+        return out.paints[i]!.color ?? undefined;
+      }
+    }
+  }
+  return ctx.slideBg ?? undefined;
+}
+
+function boxOfPlaceholder(ctx: SlideContext, el: Element, ph: { type?: string; idx?: string }) {
+  return (
+    boxOf(xfrmOf(el)) ??
+    boxOf(child(child(findPlaceholder(ctx.layoutTree, ph), NS.p, "spPr"), NS.a, "xfrm")) ??
+    boxOf(
+      child(
+        child(
+          findPlaceholder(ctx.masterTree, { type: ph.type === "ctrTitle" ? "title" : ph.type }),
+          NS.p,
+          "spPr",
+        ),
+        NS.a,
+        "xfrm",
+      ),
+    )
+  );
+}
+
+function collect(ctx: SlideContext, tree: Element, out: Collected, grouped = false) {
   for (const el of resolveChildren(tree)) {
+    if (!grouped && el.localName !== "AlternateContent") checkOffSlide(ctx, el, out);
+    const paint = grouped ? undefined : paintOf(el, ctx.inh.colors);
     switch (el.localName) {
       case "sp": {
         const ph = placeholderOf(el);
         const body = child(el, NS.p, "txBody");
         if (body) {
-          const text = readTextBody(ctx, body, el, ph, false);
+          const box = ph ? boxOfPlaceholder(ctx, el, ph) : boxOf(xfrmOf(el));
+          const text = readTextBody(
+            ctx,
+            body,
+            el,
+            ph,
+            false,
+            backgroundFor(ctx, out, box, paint, grouped),
+          );
           out.texts.push(text);
           if (text.kind === "title" && out.title === undefined) {
             const title = text.paragraphs
@@ -343,7 +538,7 @@ function collect(ctx: SlideContext, tree: Element, out: Collected) {
         break;
       }
       case "grpSp":
-        collect(ctx, el, out);
+        collect(ctx, el, out, true);
         break;
       case "graphicFrame": {
         const data = child(child(el, NS.a, "graphic"), NS.a, "graphicData");
@@ -366,22 +561,53 @@ function collect(ctx: SlideContext, tree: Element, out: Collected) {
       }
       default:
     }
+    if (paint) out.paints.push(paint);
   }
 }
 
-function readTheme(
-  zip: Zip,
-  masterPart: string | undefined,
-  rels: Map<string, Relationship>,
-): Inheritance["theme"] {
+const SCHEME_SLOTS = [
+  "dk1",
+  "lt1",
+  "dk2",
+  "lt2",
+  "accent1",
+  "accent2",
+  "accent3",
+  "accent4",
+  "accent5",
+  "accent6",
+  "hlink",
+  "folHlink",
+];
+
+function readTheme(zip: Zip, rels: Map<string, Relationship>, masterRoot: Element | undefined) {
   const themeRel = [...rels.values()].find((r) => typeTail(r.type) === "theme");
-  void masterPart;
   const text = themeRel ? zip.text(themeRel.target) : undefined;
-  if (!text) return {};
-  const scheme = descendants(parseXml(text), NS.a, "fontScheme")[0];
+  const palette = new Map<string, string>();
+  const clrMap = new Map<string, string>();
+  const map = child(masterRoot, NS.p, "clrMap");
+  for (const slot of ["bg1", "tx1", "bg2", "tx2"]) {
+    const to = attr(map, slot);
+    if (to) clrMap.set(slot, to);
+  }
+  if (!text) return { fonts: {}, colors: { palette, clrMap } };
+  const theme = parseXml(text);
+  const scheme = descendants(theme, NS.a, "fontScheme")[0];
+  const clr = descendants(theme, NS.a, "clrScheme")[0];
+  for (const slot of SCHEME_SLOTS) {
+    const holder = child(clr, NS.a, slot);
+    const c = child(holder, NS.a, "srgbClr") ?? child(holder, NS.a, "sysClr");
+    const hex = (
+      attr(c, "val") && c?.localName === "srgbClr" ? attr(c, "val") : attr(c, "lastClr")
+    )?.toUpperCase();
+    if (hex && HEX6.test(hex)) palette.set(slot, hex);
+  }
   return {
-    major: attr(child(child(scheme, NS.a, "majorFont"), NS.a, "latin"), "typeface"),
-    minor: attr(child(child(scheme, NS.a, "minorFont"), NS.a, "latin"), "typeface"),
+    fonts: {
+      major: attr(child(child(scheme, NS.a, "majorFont"), NS.a, "latin"), "typeface"),
+      minor: attr(child(child(scheme, NS.a, "minorFont"), NS.a, "latin"), "typeface"),
+    },
+    colors: { palette, clrMap },
   };
 }
 
@@ -420,35 +646,52 @@ export function parseDeck(bytes: Uint8Array): Deck {
       (r) => typeTail(r.type) === "slideMaster",
     )?.target;
     const masterRels = masterPart ? readRels(zip, masterPart) : new Map<string, Relationship>();
-    const theme = readTheme(zip, masterPart, masterRels);
+    const rootOf = (p: string | undefined) => {
+      const text = p ? zip.text(p) : undefined;
+      return text ? parseXml(text) : undefined;
+    };
+    const treeOf = (root: Element | undefined) => child(child(root, NS.p, "cSld"), NS.p, "spTree");
+    const masterRoot = rootOf(masterPart);
+    const layoutRoot = rootOf(layoutPart);
+    const { fonts: theme, colors } = readTheme(zip, masterRels, masterRoot);
     themeFonts.major ??= theme.major;
     themeFonts.minor ??= theme.minor;
-
-    const treeOf = (p: string | undefined) => {
-      const text = p ? zip.text(p) : undefined;
-      return text ? child(child(parseXml(text), NS.p, "cSld"), NS.p, "spTree") : undefined;
-    };
-    const masterText = masterPart ? zip.text(masterPart) : undefined;
-    const masterRoot = masterText ? parseXml(masterText) : undefined;
+    const slideRoot = rootOf(part);
 
     const ctx: SlideContext = {
       zip,
       part,
       rels,
-      layoutTree: treeOf(layoutPart),
+      layoutTree: treeOf(layoutRoot),
       masterTree: masterRoot ? child(child(masterRoot, NS.p, "cSld"), NS.p, "spTree") : undefined,
       inh: {
         masterStyles: masterRoot ? child(masterRoot, NS.p, "txStyles") : undefined,
         defaultTextStyle,
         theme,
+        colors,
       },
       slideParts: known,
+      slideW: Number(attr(size, "cx") ?? 0),
+      slideH: Number(attr(size, "cy") ?? 0),
+      slideBg:
+        backgroundOf(slideRoot, colors) ??
+        backgroundOf(layoutRoot, colors) ??
+        backgroundOf(masterRoot, colors) ??
+        // No layer sets a background: PowerPoint paints white.
+        "FFFFFF",
     };
 
-    const slideText = zip.text(part);
-    const root = slideText ? parseXml(slideText) : undefined;
-    const collected: Collected = { texts: [], pictures: [], tables: [] };
-    const tree = child(child(root, NS.p, "cSld"), NS.p, "spTree");
+    const root = slideRoot;
+    const collected: Collected = { texts: [], pictures: [], tables: [], offSlide: [], paints: [] };
+    // Decoration drawn by the layout and master sits behind everything on the slide.
+    for (const tree of [ctx.masterTree, ctx.layoutTree]) {
+      for (const el of tree ? resolveChildren(tree) : []) {
+        if (el.localName === "sp" && placeholderOf(el)) continue;
+        const paint = paintOf(el, colors);
+        if (paint) collected.paints.push(paint);
+      }
+    }
+    const tree = treeOf(root);
     if (tree) collect(ctx, tree, collected);
 
     const commentCount = [...rels.values()]
@@ -469,6 +712,7 @@ export function parseDeck(bytes: Uint8Array): Deck {
       pictures: collected.pictures,
       tables: collected.tables,
       commentCount,
+      offSlide: collected.offSlide,
     };
   });
 

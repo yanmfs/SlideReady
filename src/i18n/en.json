@@ -163,5 +163,18 @@
   "fix.deck-aspect.mac": "Design > Slide Size > Widescreen (16:9) if the projector is widescreen. Check the result.",
   "report.copyMarkdown": "Copy as Markdown",
   "report.copied": "Report copied.",
-  "report.copyFailed": "I couldn't copy. Try again."
+  "report.copyFailed": "I couldn't copy. Try again.",
+  "issue.contrast.title": "Low-contrast text",
+  "issue.contrast.body": "{count} run(s) at a contrast of {ratio}:1 or less (for example \"{sample}\"). On a projector, text below 4.5:1 washes out; below 3:1 nobody can read it.",
+  "fix.contrast.win": "Pick a darker text color on a light background (or the reverse). Under Home > Font Color, prefer pure black or white.",
+  "fix.contrast.mac": "Pick a darker text color on a light background (or the reverse). Under Home > Font Color, prefer pure black or white.",
+  "fix.contrast.gs": "Select the text and use Text color in the toolbar to switch to a higher-contrast color.",
+  "issue.hygiene-off-slide.title": "Object outside the slide area",
+  "issue.hygiene-off-slide.body": "{count} object(s) fully or partly outside the slide (for example \"{name}\"). It does not show during the talk but stays in the file.",
+  "fix.hygiene-off-slide.win": "Open the Selection Pane (Home > Arrange > Selection Pane), find the object and delete it or move it onto the slide.",
+  "fix.hygiene-off-slide.mac": "Open the Selection Pane (Home > Arrange > Selection Pane), find the object and delete it or move it onto the slide.",
+  "issue.hygiene-metadata.title": "Personal names in the file properties",
+  "issue.hygiene-metadata.body": "The file stores these names: {people}. Anyone who gets the deck can see them.",
+  "fix.hygiene-metadata.win": "File > Info > Check for Issues > Inspect Document > Remove All under Document Properties and Personal Information.",
+  "fix.hygiene-metadata.mac": "File > Properties, clear the Author and Manager fields. Or Review > Protect > Remove personal information on save."
 }
