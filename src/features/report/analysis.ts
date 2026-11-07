@@ -1,16 +1,11 @@
 import { parseDeck } from "../../core/pptx/parse";
 import type { Deck } from "../../core/pptx/types";
-import { fontUsage, runRules, type FontUse, type Issue, type RuleContext } from "../../core/rules";
+import { fontUsage, runRules, type RuleContext } from "../../core/rules";
 import { isLocalPath, localFilePath } from "../../core/rules/util";
 import { platform } from "../../platform";
+import type { Analysis } from "./model";
 
-export interface Analysis {
-  name: string;
-  deck: Deck;
-  issues: Issue[];
-  fonts: FontUse[];
-  fontsKnown: boolean;
-}
+export type { Analysis } from "./model";
 
 // Rules are synchronous, so everything they may ask about the machine is looked up first.
 async function buildContext(deck: Deck): Promise<{ ctx: RuleContext; fontsKnown: boolean }> {

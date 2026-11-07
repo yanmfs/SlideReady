@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { Issue, Severity } from "../../core/rules";
 import { hasKey, type Key } from "../../i18n";
 import { selectLang, useApp, useT } from "../../store";
+import { bodyKey, extraKeys, titleKey } from "./issueText";
 
 const STYLE: Record<Severity, { icon: typeof CircleX; text: string; border: string }> = {
   error: { icon: CircleX, text: "text-danger", border: "border-l-danger" },
@@ -19,15 +20,7 @@ export function IssueCard({ issue }: { issue: Issue }) {
   const { icon: Icon, text, border } = STYLE[issue.severity];
   const p = issue.params;
 
-  const bodyKey =
-    (issue.id === "font-risky" && p.unknown === 1 ? "issue.font-risky.unknown" : null) ??
-    (issue.id === "media-heavy" && p.deck === 1 ? "issue.media-heavy.deck" : null) ??
-    (issue.id === "media-format" && p.mac !== 1 ? "issue.media-format.old" : null) ??
-    `issue.${issue.id}.body`;
-  const extras = [
-    issue.id === "link-local-file" && p.exposesUser === 1 ? t("issue.link-local-file.user") : null,
-    issue.id === "media-linked" && p.missing === 1 ? t("issue.media-linked.missing") : null,
-  ].filter(Boolean);
+  const extras = extraKeys(issue).map((k) => t(k));
 
   const fixes = PLATFORMS.filter((k) => hasKey(lang, `fix.${issue.id}.${k}`));
 
@@ -40,9 +33,9 @@ export function IssueCard({ issue }: { issue: Issue }) {
             <span className={`text-xs font-semibold uppercase tracking-wide ${text}`}>
               {t(`severity.${issue.severity}`)}
             </span>
-            <h3 className="text-sm font-semibold">{t(`issue.${issue.id}.title` as Key)}</h3>
+            <h3 className="text-sm font-semibold">{t(titleKey(issue))}</h3>
           </div>
-          <p className="mt-1 text-sm">{t(bodyKey as Key, p)}</p>
+          <p className="mt-1 text-sm">{t(bodyKey(issue), p)}</p>
           {extras.map((line) => (
             <p key={line} className="mt-1 text-sm text-muted">
               {line}

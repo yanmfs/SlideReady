@@ -9,6 +9,8 @@ use tauri::ipc::Response;
 pub enum FileError {
     #[error("only .pptx files are accepted")]
     NotPptx,
+    #[error("reports are saved as .html or .md only")]
+    NotReport,
     #[error("could not read the file: {0}")]
     Io(#[from] std::io::Error),
 }
@@ -74,6 +76,25 @@ pub fn file_exists(path: PathBuf) -> bool {
     path.exists()
 }
 
+fn is_report(path: &Path) -> bool {
+    path.extension()
+        .and_then(|e| e.to_str())
+        .is_some_and(|e| ["html", "md"].iter().any(|x| e.eq_ignore_ascii_case(x)))
+}
+
+// The report is the only file the app writes; the .pptx itself is never touched.
+pub fn write_report(path: &Path, contents: &str) -> Result<(), FileError> {
+    if !is_report(path) {
+        return Err(FileError::NotReport);
+    }
+    Ok(fs::write(path, contents)?)
+}
+
+#[tauri::command]
+pub fn write_report_file(path: PathBuf, contents: String) -> Result<(), FileError> {
+    write_report(&path, &contents)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -97,6 +118,17 @@ mod tests {
         let path = scratch("notes.pdf");
         fs::write(&path, b"x").unwrap();
         assert!(matches!(read_pptx(&path), Err(FileError::NotPptx)));
+    }
+
+    #[test]
+    fn writes_reports_but_never_a_pptx() {
+        let html = scratch("report.html");
+        write_report(&html, "<p>ok</p>").unwrap();
+        assert_eq!(fs::read_to_string(&html).unwrap(), "<p>ok</p>");
+        assert!(matches!(
+            write_report(&scratch("deck.pptx"), "x"),
+            Err(FileError::NotReport)
+        ));
     }
 
     #[test]

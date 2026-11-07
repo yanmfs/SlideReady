@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Select } from "../../components/Select";
 import type { Category, Issue, Severity } from "../../core/rules";
 import { useT } from "../../store";
-import type { Analysis } from "./analysis";
+import { allIssues, type Analysis } from "./model";
 import { IssueCard } from "./IssueCard";
 
 const SEVERITIES: Severity[] = ["error", "warning", "tip"];
@@ -13,14 +13,13 @@ export function IssuesTab({ analysis }: { analysis: Analysis }) {
   const [severity, setSeverity] = useState<Severity | "all">("all");
   const [category, setCategory] = useState<Category | "all">("all");
 
+  const issues = useMemo(() => allIssues(analysis), [analysis]);
   const counts = useMemo(
     () =>
-      Object.fromEntries(
-        SEVERITIES.map((s) => [s, analysis.issues.filter((i) => i.severity === s).length]),
-      ),
-    [analysis],
+      Object.fromEntries(SEVERITIES.map((s) => [s, issues.filter((i) => i.severity === s).length])),
+    [issues],
   );
-  const shown = analysis.issues.filter(
+  const shown = issues.filter(
     (i) =>
       (severity === "all" || i.severity === severity) &&
       (category === "all" || i.category === category),
@@ -64,7 +63,7 @@ export function IssuesTab({ analysis }: { analysis: Analysis }) {
 
       {shown.length === 0 && (
         <p className="rounded-panel border border-dashed border-border p-6 text-center text-sm text-muted">
-          {analysis.issues.length === 0 ? t("summary.allGood") : t("filter.noResults")}
+          {issues.length === 0 ? t("summary.allGood") : t("filter.noResults")}
         </p>
       )}
 

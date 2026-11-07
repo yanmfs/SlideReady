@@ -1,9 +1,11 @@
 import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
-import { ask, open } from "@tauri-apps/plugin-dialog";
+import { ask, open, save } from "@tauri-apps/plugin-dialog";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { load, type Store } from "@tauri-apps/plugin-store";
 import { detectOs } from "../core/os";
+import type { LinkProbe } from "../core/online";
 import type { LargeMessage, LoadedDeck, Platform } from "./types";
 
 const LARGE_MB = 300;
@@ -15,7 +17,7 @@ const basename = (path: string) => path.split(/[\\/]/).pop() ?? path;
 
 async function readDeck(path: string): Promise<LoadedDeck> {
   const buffer = await invoke<ArrayBuffer>("read_pptx_file", { path });
-  return { bytes: new Uint8Array(buffer), name: basename(path) };
+  return { bytes: new Uint8Array(buffer), name: basename(path), path };
 }
 
 // Returns null when the person declines to open a very large file.
@@ -40,6 +42,19 @@ export const tauri: Platform = {
   },
   listFonts: () => (fonts ??= invoke<string[]>("list_system_fonts").then((list) => new Set(list))),
   fileExists: (path) => invoke<boolean>("file_exists", { path }),
+  checkLinks: (urls) => invoke<LinkProbe[]>("check_links", { urls }),
+  readDeck,
+  watchDeck: async (path, onChange) => {
+    await invoke("watch_deck", { path });
+    return listen("deck-changed", onChange);
+  },
+  saveReport: async (fileName, contents) => {
+    const ext = fileName.split(".").pop() ?? "html";
+    const path = await save({ defaultPath: fileName, filters: [{ name: ext, extensions: [ext] }] });
+    if (!path) return false;
+    await invoke("write_report_file", { path, contents });
+    return true;
+  },
   onFileDrop: ({ hover, deck, failed, largeMessage }) =>
     getCurrentWebview().onDragDropEvent((event) => {
       const { type } = event.payload;
