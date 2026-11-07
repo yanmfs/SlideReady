@@ -14,6 +14,12 @@ Confira um .pptx antes de apresentar: fontes que vão trocar, links para arquivo
 | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | ![Janela do SlideReady no tema claro](docs/shots/macos-light-main.png) | ![Janela do SlideReady no tema escuro](docs/shots/macos-dark-main.png) |
 
+## Como funciona
+
+<p align="center">
+  <img src="docs/how-it-works.svg" alt="Cada problema do .pptx aparece no slide certo; resolvidos, o veredito muda para "Pronto para apresentar"." width="100%">
+</p>
+
 ## Destaques
 
 - **Uma frase no topo:** "Pronto para apresentar", "Quase lá" ou "Precisa de atenção".
