@@ -31,6 +31,15 @@ export const web: Platform = {
       input.click();
     }),
   listFonts: () => Promise.resolve(null),
+  saveReport: (fileName, contents, mime) => {
+    const url = URL.createObjectURL(new Blob([contents], { type: `${mime};charset=utf-8` }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(url);
+    return Promise.resolve(true);
+  },
   fileExists: () => Promise.resolve(undefined),
   onFileDrop: ({ hover, deck, failed }) => {
     const over = (e: DragEvent) => {

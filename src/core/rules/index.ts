@@ -55,10 +55,13 @@ export const rules: Rule[] = [
 
 const WEIGHT: Record<Severity, number> = { error: 0, warning: 1, tip: 2 };
 
+export const sortIssues = (issues: Issue[]): Issue[] =>
+  [...issues].sort(
+    (a, b) => (a.slide ?? 0) - (b.slide ?? 0) || WEIGHT[a.severity] - WEIGHT[b.severity],
+  );
+
 export function runRules(deck: Deck, ctx: RuleContext): Issue[] {
-  return rules
-    .flatMap((rule) => rule.run(deck, ctx))
-    .sort((a, b) => (a.slide ?? 0) - (b.slide ?? 0) || WEIGHT[a.severity] - WEIGHT[b.severity]);
+  return sortIssues(rules.flatMap((rule) => rule.run(deck, ctx)));
 }
 
 export function countBySeverity(issues: Issue[]): Record<Severity, number> {

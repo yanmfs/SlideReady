@@ -1,11 +1,15 @@
 import * as Tabs from "@radix-ui/react-tabs";
-import { ClipboardCopy, FileText } from "lucide-react";
+import { ClipboardCopy, FileDown, FileText } from "lucide-react";
 import { Button } from "../../components/Button";
 import { showToast } from "../../toast";
 import { countBySeverity } from "../../core/rules";
-import { useT } from "../../store";
-import type { Analysis } from "./analysis";
+import { selectLang, useApp, useT } from "../../store";
+import { platform } from "../../platform";
+import { allIssues, type Analysis } from "./model";
+import { AccessibilityTab } from "./AccessibilityTab";
 import { FontsTab } from "./FontsTab";
+import { reportHtml } from "./html";
+import { LinksTab } from "./LinksTab";
 import { reportMarkdown } from "./markdown";
 import { IssuesTab } from "./IssuesTab";
 
@@ -22,7 +26,8 @@ function aspect(w: number, h: number): string {
 
 export function ReportView({ analysis }: { analysis: Analysis }) {
   const t = useT();
-  const counts = countBySeverity(analysis.issues);
+  const lang = useApp(selectLang);
+  const counts = countBySeverity(allIssues(analysis));
   const bytes = analysis.deck.fileSize;
   const size =
     bytes < 1024 * 1024
@@ -47,6 +52,23 @@ export function ReportView({ analysis }: { analysis: Analysis }) {
               </p>
             </div>
           </div>
+          <Button
+            onClick={() =>
+              platform
+                .saveReport(
+                  `${analysis.name.replace(/\.pptx$/i, "")} - SlideReady.html`,
+                  reportHtml(analysis, t, lang),
+                  "text/html",
+                )
+                .then(
+                  (saved) => saved && showToast(t("report.saved")),
+                  () => showToast(t("report.saveFailed"), "error"),
+                )
+            }
+          >
+            <FileDown className="size-4" aria-hidden />
+            {t("report.saveHtml")}
+          </Button>
           <Button
             onClick={() =>
               navigator.clipboard.writeText(reportMarkdown(analysis, t)).then(
@@ -82,6 +104,12 @@ export function ReportView({ analysis }: { analysis: Analysis }) {
           <Tabs.Trigger value="fonts" className={tab}>
             {t("tab.fonts")}
           </Tabs.Trigger>
+          <Tabs.Trigger value="links" className={tab}>
+            {t("tab.links")}
+          </Tabs.Trigger>
+          <Tabs.Trigger value="a11y" className={tab}>
+            {t("tab.a11y")}
+          </Tabs.Trigger>
         </Tabs.List>
         <div className="min-h-0 flex-1 overflow-y-auto p-6">
           <Tabs.Content value="issues">
@@ -89,6 +117,12 @@ export function ReportView({ analysis }: { analysis: Analysis }) {
           </Tabs.Content>
           <Tabs.Content value="fonts">
             <FontsTab analysis={analysis} />
+          </Tabs.Content>
+          <Tabs.Content value="links">
+            <LinksTab analysis={analysis} />
+          </Tabs.Content>
+          <Tabs.Content value="a11y">
+            <AccessibilityTab analysis={analysis} />
           </Tabs.Content>
           <p className="mt-6 text-xs text-muted">{t("limits.note")}</p>
         </div>
