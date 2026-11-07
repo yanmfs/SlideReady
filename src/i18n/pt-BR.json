@@ -160,5 +160,8 @@
   "issue.deck-aspect.title": "Proporção 4:3",
   "issue.deck-aspect.body": "A apresentação está em 4:3. Se o projetor ou a TV da sala for widescreen, aparecem tarjas pretas nas laterais.",
   "fix.deck-aspect.win": "Design > Tamanho do Slide > Widescreen (16:9), se o projetor for widescreen. Confira o resultado.",
-  "fix.deck-aspect.mac": "Design > Tamanho do Slide > Widescreen (16:9), se o projetor for widescreen. Confira o resultado."
+  "fix.deck-aspect.mac": "Design > Tamanho do Slide > Widescreen (16:9), se o projetor for widescreen. Confira o resultado.",
+  "report.copyMarkdown": "Copiar como Markdown",
+  "report.copied": "Relatório copiado.",
+  "report.copyFailed": "Não consegui copiar. Tente de novo."
 }

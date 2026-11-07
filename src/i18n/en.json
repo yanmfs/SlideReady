@@ -160,5 +160,8 @@
   "issue.deck-aspect.title": "4:3 aspect ratio",
   "issue.deck-aspect.body": "The deck is 4:3. If the room's projector or TV is widescreen, black bars show at the sides.",
   "fix.deck-aspect.win": "Design > Slide Size > Widescreen (16:9) if the projector is widescreen. Check the result.",
-  "fix.deck-aspect.mac": "Design > Slide Size > Widescreen (16:9) if the projector is widescreen. Check the result."
+  "fix.deck-aspect.mac": "Design > Slide Size > Widescreen (16:9) if the projector is widescreen. Check the result.",
+  "report.copyMarkdown": "Copy as Markdown",
+  "report.copied": "Report copied.",
+  "report.copyFailed": "I couldn't copy. Try again."
 }
