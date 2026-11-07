@@ -11,7 +11,9 @@
     "typecheck": "tsc",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "check": "pnpm typecheck && pnpm lint && pnpm test"
+    "check": "pnpm typecheck && pnpm lint && pnpm test",
+    "build:web": "vite build --mode web --outDir dist-web",
+    "build:cli": "vite build --config vite.cli.config.ts && chmod +x dist-cli/slideready.mjs"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.3.1",
@@ -63,5 +65,8 @@
     "tauri",
     "desktop"
   ],
-  "packageManager": "pnpm@12.18.0"
+  "packageManager": "pnpm@12.18.0",
+  "bin": {
+    "slideready": "dist-cli/slideready.mjs"
+  }
 }
