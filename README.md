@@ -32,6 +32,16 @@ Confira um .pptx antes de apresentar: fontes que vão trocar, links para arquivo
 
 Minutos antes de apresentar, o arquivo abre em outro computador e a fonte trocou, o vídeo não toca, o link aponta para a área de trabalho de quem fez e sobrou um "Lorem ipsum" no slide 12. O SlideReady é a checagem antes de subir no palco.
 
+## Instalar pelo Homebrew (macOS)
+
+```sh
+brew install --cask yanmfs/tap/slideready
+```
+
+O Homebrew baixa o mesmo instalador da release e coloca o SlideReady em Aplicativos. É a versão universal, para Apple Silicon e Intel. Para atualizar, rode `brew update` e `brew upgrade --cask yanmfs/tap/slideready`.
+
+Se o macOS pedir confirmação na primeira abertura, veja a seção **Primeira abertura** abaixo. Mais detalhes em [instalação pelo Homebrew](docs/instalacao-homebrew.md).
+
 ## Download
 
 Baixe o instalador na página de [Releases](../../releases):

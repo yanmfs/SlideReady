@@ -32,6 +32,14 @@ Check a .pptx before you present: fonts that will change, links to local files, 
 
 Minutes before presenting, the file opens on another computer and the font changed, the video will not play, the link points to the author's desktop and a "Lorem ipsum" is left on slide 12. SlideReady is the check before you step on stage.
 
+## Install with Homebrew (macOS)
+
+```sh
+brew install --cask yanmfs/tap/slideready
+```
+
+This installs the same universal macOS app provided in Releases, for Apple Silicon and Intel. Update with `brew update` followed by `brew upgrade --cask yanmfs/tap/slideready`. See **First launch** below if macOS asks you to confirm opening the app.
+
 ## Download
 
 Get the installer from the [Releases](../../releases) page:
