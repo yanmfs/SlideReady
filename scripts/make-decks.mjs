@@ -391,6 +391,41 @@ export async function buildDecks() {
     },
   );
 
+  decks["slide-empty"] = await build({
+    slides: [{ title: "Com conteúdo" }, { title: null, body: "" }],
+  });
+  decks["fonts-many"] = await build({
+    slides: [
+      {
+        title: "Muitas fontes",
+        extra: (s) =>
+          ["Arial", "Georgia", "Verdana", "Courier New", "Tahoma"].forEach((font, i) =>
+            s.addText(`Texto em ${font}`, {
+              x: 1,
+              y: 2.2 + i * 0.6,
+              w: 6,
+              h: 0.5,
+              fontFace: font,
+              fontSize: 20,
+            }),
+          ),
+      },
+    ],
+  });
+  decks["title-long"] = await build({
+    slides: [
+      {
+        title:
+          "Resultados consolidados do terceiro trimestre de dois mil e vinte e seis em todas as regiões e unidades de negócio",
+      },
+    ],
+  });
+  decks["notes-placeholder"] = await build({
+    slides: [
+      { title: "Com notas", extra: (s) => s.addNotes("TODO: lembrar de falar do orçamento") },
+    ],
+  });
+
   const txt = (s, text, opts) =>
     s.addText(text, { x: 1, y: 5.2, w: 6, h: 0.6, fontFace: "Arial", fontSize: 24, ...opts });
   decks["contrast-warning"] = await build({

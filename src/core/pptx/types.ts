@@ -73,6 +73,10 @@ export interface Slide {
   pictures: Picture[];
   tables: Table[];
   commentCount: number;
+  // Things the slide actually shows: shapes, pictures, tables, charts, or placeholders with text.
+  contentCount: number;
+  // Speaker notes, as plain text.
+  notes: string;
   offSlide: OffSlideShape[];
 }
 

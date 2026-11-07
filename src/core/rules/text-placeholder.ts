@@ -21,6 +21,14 @@ const PLACEHOLDER = new RegExp(
 // TODO, TBD and XXX only count in capitals; "todo" is an ordinary Portuguese word.
 const CAPS_ONLY = /^(todo|tbd|x{3,})$/i;
 
+// The first leftover-placeholder phrase in a line, or null. "todo" in lowercase is just a word.
+export function findPlaceholder(line: string): string | null {
+  const match = PLACEHOLDER.exec(line);
+  if (!match) return null;
+  if (CAPS_ONLY.test(match[0]) && match[0] !== match[0].toUpperCase()) return null;
+  return match[0];
+}
+
 export const textPlaceholder: Rule = {
   id: "text-placeholder",
   category: "text",
@@ -29,10 +37,8 @@ export const textPlaceholder: Rule = {
       for (const text of slide.texts) {
         for (const paragraph of text.paragraphs) {
           const line = paragraph.runs.map((r) => r.text).join("");
-          const match = PLACEHOLDER.exec(line);
-          if (!match) continue;
-          if (CAPS_ONLY.test(match[0]) && match[0] !== match[0].toUpperCase()) continue;
-          return [issue("text-placeholder", "text", "error", slide, { sample: match[0] })];
+          const found = findPlaceholder(line);
+          if (found) return [issue("text-placeholder", "text", "error", slide, { sample: found })];
         }
       }
       return [];

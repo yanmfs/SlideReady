@@ -166,6 +166,39 @@ describe("accessibility and hygiene", () => {
   });
 });
 
+describe("slide content", () => {
+  it("flags a slide with nothing on it, but not one with content", () => {
+    const empty = run("slide-empty").filter((i) => i.id === "slide-empty");
+    expect(empty.map((i) => i.slide)).toEqual([2]);
+    expect(ids(run("clean"))).not.toContain("slide-empty");
+  });
+
+  it("does not call a slide with only shapes empty", () => {
+    const deck = parseDeck(decks["off-slide"]!);
+    expect(deck.slides.every((s) => s.contentCount > 0)).toBe(true);
+  });
+
+  it("tips when a title is too long to take in", () => {
+    const issue = run("title-long").find((i) => i.id === "title-long");
+    expect(issue?.severity).toBe("tip");
+    expect(Number(issue?.params.length)).toBeGreaterThan(90);
+    expect(ids(run("clean"))).not.toContain("title-long");
+  });
+
+  it("flags placeholder text left in the speaker notes", () => {
+    const issue = run("notes-placeholder").find((i) => i.id === "notes-placeholder");
+    expect(issue?.params.sample).toBe("TODO");
+    expect(parseDeck(decks["notes-placeholder"]!).slides[0]?.notes).toContain("orçamento");
+    expect(ids(run("clean"))).not.toContain("notes-placeholder");
+  });
+
+  it("tips when more than three fonts are in use", () => {
+    const issue = run("fonts-many").find((i) => i.id === "fonts-many");
+    expect(issue?.params.count).toBe(5);
+    expect(ids(run("clean"))).not.toContain("fonts-many");
+  });
+});
+
 describe("contrast and file hygiene", () => {
   it("warns below 4.5:1 and fails below 3:1", () => {
     const warn = run("contrast-warning").find((i) => i.id === "contrast");

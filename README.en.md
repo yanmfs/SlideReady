@@ -38,11 +38,11 @@ xattr -cr /Applications/SlideReady.app
 ## How to use
 
 1. Drop the `.pptx` on the window (from PowerPoint, Keynote or exported from Google Slides) or click Open.
-2. Read the summary at the top: errors, warnings and tips.
+2. The top says in one sentence whether all is well ("Ready to present", "Almost there" or "Needs attention") and how many errors, warnings and tips there are.
 3. In the Issues tab, filter by severity or category. Each item shows the slide, an explanation and "How to fix" for PowerPoint on Windows, on Mac and in Google Slides.
 4. In the Fonts tab, see which fonts the file uses and whether each will change. The Links & media tab lists every link and media file, and the Accessibility tab sums up images without a description, slides without a title and tables.
 5. "Save report (HTML)" makes a single file to send to whoever will fix the deck, and "Copy as Markdown" takes the report to an e-mail or chat.
-6. If you save the file in PowerPoint while SlideReady is open, the analysis runs again by itself.
+6. If you save the file in PowerPoint while SlideReady is open, the analysis runs again by itself and the top shows how many problems were fixed and how many are new.
 
 Optional: the "Check links online" button (Links & media tab) tests the addresses in the deck. It is the only action in the app that uses the internet, and it runs only when you click.
 
@@ -50,7 +50,7 @@ From a terminal the same analysis runs without the interface: `pnpm build:cli`, 
 
 ## What it does and does not do
 
-It reads the file in the real slide order, follows layout, master and theme to find the effective text size and font, and applies 23 rules: links to local files, invalid URLs and jumps to missing slides; linked, missing, risky-format or heavy media; fonts that are not embedded and not installed or outside the safe list; placeholder text, small text, text shrunk by autofit and dense slides; images without alt text, slides without a title or with a repeated one, tables without a header; low-contrast text (WCAG); hidden slides, comments, personal names in the file properties, objects outside the slide area and 4:3. The file is never changed.
+It reads the file in the real slide order, follows layout, master and theme to find the effective text size and font, and applies 27 rules: links to local files, invalid URLs and jumps to missing slides; linked, missing, risky-format or heavy media; fonts that are not embedded and not installed or outside the safe list; placeholder text, small text, text shrunk by autofit and dense slides; images without alt text, slides without a title or with a repeated one, tables without a header; low-contrast text (WCAG); empty slides, titles that are too long, too many fonts; hidden slides, comments, speaker notes with placeholder text, personal names in the file properties, objects outside the slide area and 4:3. The file is never changed.
 
 It does not:
 

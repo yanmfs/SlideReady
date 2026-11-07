@@ -38,11 +38,11 @@ xattr -cr /Applications/SlideReady.app
 ## Como usar
 
 1. Arraste o `.pptx` para a janela (do PowerPoint, do Keynote ou do Google Slides exportado) ou clique em Abrir.
-2. Veja o resumo no topo: erros, avisos e dicas.
+2. O topo diz em uma frase se está tudo certo ("Pronto para apresentar", "Quase lá" ou "Precisa de atenção") e quantos erros, avisos e dicas há.
 3. Na aba Problemas, filtre por gravidade ou categoria. Cada item mostra o slide, a explicação e "Como corrigir" para PowerPoint no Windows, no Mac e no Google Slides.
 4. Na aba Fontes, veja quais fontes o arquivo usa e se cada uma vai trocar. A aba Links e mídia lista todos os links e arquivos de mídia, e a aba Acessibilidade resume imagens sem descrição, slides sem título e tabelas.
 5. "Salvar relatório (HTML)" gera um arquivo único para mandar a quem vai corrigir, e "Copiar como Markdown" leva o relatório para um e-mail ou chat.
-6. Se você salvar o arquivo no PowerPoint com o SlideReady aberto, a análise é refeita sozinha.
+6. Se você salvar o arquivo no PowerPoint com o SlideReady aberto, a análise é refeita sozinha e o topo mostra quantos problemas foram resolvidos e quantos são novos.
 
 Opcional: o botão "Verificar links na internet" (aba Links e mídia) testa os endereços da apresentação. É a única ação do app que usa a internet e só roda quando você clica.
 
@@ -50,7 +50,7 @@ No terminal, a mesma análise roda sem interface: `pnpm build:cli` e depois `nod
 
 ## O que ele faz e o que não faz
 
-Faz: lê o arquivo na ordem real dos slides, segue layout, master e tema para achar o tamanho e a fonte efetivos do texto, e aplica 23 regras: links para arquivos locais, URLs inválidas e saltos para slides inexistentes; mídia vinculada, ausente, em formato arriscado ou pesada; fontes não incorporadas e não instaladas ou fora da lista segura; texto provisório, texto pequeno, texto encolhido pelo ajuste automático e slides densos; imagens sem texto alternativo, slides sem título ou com título repetido, tabelas sem cabeçalho; texto com pouco contraste (WCAG); slides ocultos, comentários, nomes de pessoas nas propriedades do arquivo, objetos fora da área do slide e proporção 4:3. O arquivo nunca é alterado.
+Faz: lê o arquivo na ordem real dos slides, segue layout, master e tema para achar o tamanho e a fonte efetivos do texto, e aplica 27 regras: links para arquivos locais, URLs inválidas e saltos para slides inexistentes; mídia vinculada, ausente, em formato arriscado ou pesada; fontes não incorporadas e não instaladas ou fora da lista segura; texto provisório, texto pequeno, texto encolhido pelo ajuste automático e slides densos; imagens sem texto alternativo, slides sem título ou com título repetido, tabelas sem cabeçalho; texto com pouco contraste (WCAG); slides vazios, títulos longos demais, fontes demais; slides ocultos, comentários, anotações do orador com texto provisório, nomes de pessoas nas propriedades do arquivo, objetos fora da área do slide e proporção 4:3. O arquivo nunca é alterado.
 
 Não faz:
 

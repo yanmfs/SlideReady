@@ -8,6 +8,8 @@ export interface Analysis {
   issues: Issue[];
   fonts: FontUse[];
   fontsKnown: boolean;
+  // Set when the file was saved again while open: what the new analysis fixed and what it added.
+  changes?: { resolved: number; added: number };
   // Filled only after the person asks for the online link check.
   online?: { probes: LinkProbe[]; issues: Issue[] };
 }

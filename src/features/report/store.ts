@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { httpUrls, onlineIssues } from "../../core/online";
+import { compareIssues } from "../../core/verdict";
 import { platform, type LoadedDeck } from "../../platform";
 import { tNow } from "../../store";
 import { showToast } from "../../toast";
@@ -32,7 +33,9 @@ export const useReport = create<ReportState>((set, get) => {
     if (!deck) return;
     try {
       const analysis = await analyze(deck.name, deck.bytes);
-      set({ analysis });
+      const before = get().analysis;
+      const changes = before ? compareIssues(before.issues, analysis.issues) : undefined;
+      set({ analysis: { ...analysis, changes } });
       showToast(tNow("watch.reanalyzed"));
     } catch {
       // The file may still be half written; the next change event retries.

@@ -54,7 +54,9 @@ export default function App() {
         <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-surface px-4">
           <div className="flex items-center gap-2.5">
             <Logo />
-            <span className="font-semibold">SlideReady</span>
+            <span className="font-display text-[17px] font-semibold tracking-tight">
+              SlideReady
+            </span>
           </div>
           <div className="flex items-center gap-1">
             <Tooltip label={t("header.open")} hint={`${mod}+O`}>
