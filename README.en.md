@@ -1,6 +1,10 @@
-# SlideReady
+<p align="center">
+  <img src="docs/banner.en.png" alt="SlideReady" width="100%">
+</p>
 
-[Português](README.md)
+<p align="center"><a href="README.md">Português</a> · <a href="../../releases">Download</a> · <a href="CONTRIBUTING.md">Contributing</a></p>
+
+<p align="center"><img alt="license MIT" src="https://img.shields.io/badge/license-MIT-dc4a12?style=flat-square&labelColor=1b1f27"> <img alt="platform Windows | macOS" src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS-dc4a12?style=flat-square&labelColor=1b1f27"> <img alt="100% offline" src="https://img.shields.io/badge/100%25-offline-dc4a12?style=flat-square&labelColor=1b1f27"> <img alt="built with Tauri 2" src="https://img.shields.io/badge/built%20with-Tauri%202-dc4a12?style=flat-square&labelColor=1b1f27"></p>
 
 Check a .pptx before you present: fonts that will change, links to local files, media that will not travel and forgotten placeholder text, slide by slide.
 
@@ -9,6 +13,14 @@ Check a .pptx before you present: fonts that will change, links to local files, 
 | Light                                                              | Dark                                                             |
 | ------------------------------------------------------------------ | ---------------------------------------------------------------- |
 | ![SlideReady window, light theme](docs/shots/macos-light-main.png) | ![SlideReady window, dark theme](docs/shots/macos-dark-main.png) |
+
+## Highlights
+
+- **One sentence at the top:** "Ready to present", "Almost there" or "Needs attention".
+- **27 checks** for fonts, links, media, text, contrast, accessibility and file hygiene, each with "How to fix" for PowerPoint on Windows, on Mac and in Google Slides.
+- **Re-analysis on save:** edit in PowerPoint and watch the problems go away.
+- **An HTML report** to send to whoever will fix the deck, and a **CLI** to run the same analysis in a terminal.
+- **It never changes the file**, and the only thing that uses the internet is the link check button.
 
 ## Why it exists
 

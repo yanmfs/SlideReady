@@ -1,6 +1,10 @@
-# SlideReady
+<p align="center">
+  <img src="docs/banner.png" alt="SlideReady" width="100%">
+</p>
 
-[English](README.en.md)
+<p align="center"><a href="README.en.md">English</a> · <a href="../../releases">Download</a> · <a href="CONTRIBUTING.md">Contribuir</a></p>
+
+<p align="center"><img alt="licença MIT" src="https://img.shields.io/badge/licen%C3%A7a-MIT-dc4a12?style=flat-square&labelColor=1b1f27"> <img alt="sistema Windows | macOS" src="https://img.shields.io/badge/sistema-Windows%20%7C%20macOS-dc4a12?style=flat-square&labelColor=1b1f27"> <img alt="100% offline" src="https://img.shields.io/badge/100%25-offline-dc4a12?style=flat-square&labelColor=1b1f27"> <img alt="feito com Tauri 2" src="https://img.shields.io/badge/feito%20com-Tauri%202-dc4a12?style=flat-square&labelColor=1b1f27"></p>
 
 Confira um .pptx antes de apresentar: fontes que vão trocar, links para arquivos locais, mídia que não vai junto e texto provisório esquecido, slide por slide.
 
@@ -9,6 +13,14 @@ Confira um .pptx antes de apresentar: fontes que vão trocar, links para arquivo
 | Claro                                                                  | Escuro                                                                 |
 | ---------------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | ![Janela do SlideReady no tema claro](docs/shots/macos-light-main.png) | ![Janela do SlideReady no tema escuro](docs/shots/macos-dark-main.png) |
+
+## Destaques
+
+- **Uma frase no topo:** "Pronto para apresentar", "Quase lá" ou "Precisa de atenção".
+- **27 checagens** de fontes, links, mídia, texto, contraste, acessibilidade e higiene do arquivo, cada uma com "Como corrigir" para PowerPoint no Windows, no Mac e no Google Slides.
+- **Reanálise ao salvar:** edite no PowerPoint e veja quantos problemas sumiram.
+- **Relatório em HTML** para mandar a quem vai corrigir, e uma **CLI** para rodar a mesma análise no terminal.
+- **Nunca altera o arquivo**, e a única coisa que usa a internet é o botão de verificar links.
 
 ## Por que existe
 
